@@ -3,11 +3,20 @@ project(mhash)
 
 set (CMAKE_C_STANDARD 11)
 
+if(WIN32)
+	file( GENERATE OUTPUT mhash_config.h INPUT include/mutils/mhash_config.win32.h)
+elseif(APPLE)
+	file ( GENERATE OUTPUT mhash_config.h INPUT include/mutils/mhash_config.osx.h)
+elseif(UNIX)
+	file ( GENERATE OUTPUT mhash_config.h INPUT include/mutils/mhash_config.linux.h)
+endif()
+
 file(
 	GLOB mhash_lib_sources lib/*.c lib/*.h
 	include/mutils/mglobal.h include/mutils/mhash.h include/mutils/mincludes.h
-	include/mutils/mtypes.h include/mutils/mutils.h
+	include/mutils/mtypes.h include/mutils/mutils.h mhash_config.h
 )
+
 add_library(mhash ${mhash_lib_sources})
 
 if(WIN32)
@@ -19,7 +28,9 @@ elseif(UNIX)
 endif()
 
 configure_file(${mhash_config_source} mutils/mhash_config.h COPYONLY)
+
 target_sources(mhash PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/mhash_config.h)
+
 target_include_directories(
 	mhash
 	PUBLIC
@@ -28,3 +39,4 @@ target_include_directories(
 	PRIVATE
 		lib
 )
+
